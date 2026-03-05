@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { FAMILY_MEMBERS } from "../config";
-
-const filters = ["All", ...FAMILY_MEMBERS];
+import { getMembers } from "../config";
 
 export default function CategoryBreakdown({ byCategory, byCategoryPerPerson }) {
+  const filters = ["All", ...getMembers()];
   const [filter, setFilter] = useState("All");
 
   if (!byCategory) return null;

@@ -1,6 +1,7 @@
-import { FAMILY_MEMBERS, CATEGORIES } from "../config";
+import { getMembers, CATEGORIES } from "../config";
 
 export default function ExpenseForm({ form, updateField, onSubmit, submitting }) {
+  const members = getMembers();
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit();
@@ -16,7 +17,7 @@ export default function ExpenseForm({ form, updateField, onSubmit, submitting })
           className="w-full border border-gray-300 rounded-lg px-3 py-3 text-base bg-white"
         >
           <option value="">Select...</option>
-          {FAMILY_MEMBERS.map((m) => (
+          {members.map((m) => (
             <option key={m} value={m}>{m}</option>
           ))}
         </select>
