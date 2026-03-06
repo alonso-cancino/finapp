@@ -1,11 +1,24 @@
 /**
- * Full Google Apps Script for Family Expense Tracker.
- * Paste this entire file into your Apps Script editor and redeploy.
+ * Google Apps Script for Family Expense Tracker.
+ * Paste this entire file into your Apps Script editor and deploy as Web App.
  *
- * Requires a "Members" sheet tab — it will be created automatically on first use.
+ * Setup:
+ * 1. Replace SHEET_ID with your Google Sheet ID (from the spreadsheet URL)
+ * 2. Deploy > New deployment > Web app > Execute as: Me > Who has access: Anyone
+ * 3. A "Members" sheet tab will be created automatically on first use.
  */
 
-const SHEET_ID = "1fhwQobXHt-t5P_0xvUdwfGVjP4AgYsbRWF-sPUVHiwk";
+const SHEET_ID = "YOUR_GOOGLE_SHEET_ID";
+
+function formatDate(val) {
+  if (Object.prototype.toString.call(val) === "[object Date]") {
+    var y = val.getFullYear();
+    var m = ("0" + (val.getMonth() + 1)).slice(-2);
+    var d = ("0" + val.getDate()).slice(-2);
+    return y + "-" + m + "-" + d;
+  }
+  return String(val);
+}
 
 function getMembersSheet() {
   var ss = SpreadsheetApp.openById(SHEET_ID);
@@ -20,7 +33,6 @@ function getMembersSheet() {
 function doPost(e) {
   var data = JSON.parse(e.postData.contents);
 
-  // Save members
   if (data.action === "setMembers") {
     var sheet = getMembersSheet();
     sheet.clear();
@@ -34,7 +46,6 @@ function doPost(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // Log expense
   var sheet = SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
   sheet.appendRow([
     new Date(),
@@ -50,7 +61,6 @@ function doPost(e) {
 }
 
 function doGet(e) {
-  // Return members list
   if (e.parameter.action === "getMembers") {
     var sheet = getMembersSheet();
     var data = sheet.getDataRange().getValues();
@@ -63,11 +73,9 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // Dashboard data
   var month = e.parameter.month;
   var sheet = SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
   var data = sheet.getDataRange().getValues();
-
   var summary = {};
   var byCategory = {};
   var byCategoryPerPerson = {};
@@ -75,8 +83,9 @@ function doGet(e) {
 
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
-    var rowDate = String(row[1]).slice(0, 7);
-    if (rowDate !== month) continue;
+    var dateStr = formatDate(row[1]);
+    var rowMonth = dateStr.slice(0, 7);
+    if (rowMonth !== month) continue;
 
     var who = row[2];
     var amount = Number(row[3]);
@@ -87,25 +96,13 @@ function doGet(e) {
     byCategory[category] = (byCategory[category] || 0) + amount;
     if (!byCategoryPerPerson[who]) byCategoryPerPerson[who] = {};
     byCategoryPerPerson[who][category] = (byCategoryPerPerson[who][category] || 0) + amount;
-
-    expenses.push({
-      date: String(row[1]).slice(0, 10),
-      who: who,
-      amount: amount,
-      category: category,
-      description: description,
-    });
+    expenses.push({ date: dateStr.slice(0, 10), who: who, amount: amount, category: category, description: description });
   }
 
   expenses.reverse();
   expenses = expenses.slice(0, 20);
 
   return ContentService
-    .createTextOutput(JSON.stringify({
-      summary: summary,
-      byCategory: byCategory,
-      byCategoryPerPerson: byCategoryPerPerson,
-      expenses: expenses,
-    }))
+    .createTextOutput(JSON.stringify({ summary: summary, byCategory: byCategory, byCategoryPerPerson: byCategoryPerPerson, expenses: expenses }))
     .setMimeType(ContentService.MimeType.JSON);
 }
