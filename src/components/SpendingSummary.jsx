@@ -1,4 +1,4 @@
-import { getMembers } from "../config";
+import { getMembers, formatAmount } from "../config";
 
 const COLORS = ["bg-indigo-500", "bg-pink-500", "bg-amber-500", "bg-emerald-500"];
 
@@ -14,7 +14,7 @@ export default function SpendingSummary({ summary }) {
         {members.map((person, i) => (
           <div key={person} className="flex-1 bg-white rounded-lg p-3 shadow-sm border border-gray-100">
             <div className="text-xs text-gray-500">{person}</div>
-            <div className="text-lg font-semibold">${(summary[person] || 0).toFixed(2)}</div>
+            <div className="text-lg font-semibold">{formatAmount(summary[person] || 0)}</div>
           </div>
         ))}
       </div>
@@ -28,7 +28,7 @@ export default function SpendingSummary({ summary }) {
           })}
         </div>
       )}
-      <div className="text-center text-sm text-gray-500">Total: ${total.toFixed(0)}</div>
+      <div className="text-center text-sm text-gray-500">Total: {formatAmount(total)}</div>
     </div>
   );
 }

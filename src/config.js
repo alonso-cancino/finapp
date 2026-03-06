@@ -35,11 +35,29 @@ export async function saveMembers(members) {
 }
 
 export const CATEGORIES = [
-  "Comida",
-  "Transporte",
-  "Supermercado",
-  "Salud",
-  "Entretencion",
-  "Hogar",
-  "Otro",
+  "Food",
+  "Transport",
+  "Supermarket",
+  "Health",
+  "Entertainment",
+  "Home",
+  "Other",
 ];
+
+export const CATEGORY_LABELS = {
+  Food: "Comida",
+  Transport: "Transporte",
+  Supermarket: "Supermercado",
+  Health: "Salud",
+  Entertainment: "Entretencion",
+  Home: "Hogar",
+  Other: "Otro",
+};
+
+export function categoryLabel(key) {
+  return CATEGORY_LABELS[key] || key;
+}
+
+export function formatAmount(n) {
+  return "$" + Math.round(Number(n)).toLocaleString("es-CL");
+}

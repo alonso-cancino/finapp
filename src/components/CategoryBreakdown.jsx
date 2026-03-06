@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getMembers } from "../config";
+import { getMembers, categoryLabel, formatAmount } from "../config";
 
 export default function CategoryBreakdown({ byCategory, byCategoryPerPerson }) {
   const filters = ["Todos", ...getMembers()];
@@ -35,8 +35,8 @@ export default function CategoryBreakdown({ byCategory, byCategoryPerPerson }) {
         {entries.map(([cat, amount]) => (
           <div key={cat}>
             <div className="flex justify-between text-sm mb-0.5">
-              <span>{cat}</span>
-              <span className="font-medium">${amount.toFixed(2)}</span>
+              <span>{categoryLabel(cat)}</span>
+              <span className="font-medium">{formatAmount(amount)}</span>
             </div>
             <div className="bg-gray-100 rounded-full h-2 overflow-hidden">
               <div

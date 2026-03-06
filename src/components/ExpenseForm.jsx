@@ -1,4 +1,4 @@
-import { getMembers, CATEGORIES } from "../config";
+import { getMembers, CATEGORIES, categoryLabel } from "../config";
 
 export default function ExpenseForm({ form, updateField, onSubmit, submitting }) {
   const members = getMembers();
@@ -27,12 +27,12 @@ export default function ExpenseForm({ form, updateField, onSubmit, submitting })
         <label className="block text-sm font-medium text-gray-700 mb-1">Monto</label>
         <input
           type="number"
-          inputMode="decimal"
-          step="0.01"
+          inputMode="numeric"
+          step="1"
           min="0"
           value={form.amount}
           onChange={(e) => updateField("amount", e.target.value)}
-          placeholder="0.00"
+          placeholder="0"
           className="w-full border border-gray-300 rounded-lg px-3 py-3 text-base"
         />
       </div>
@@ -46,7 +46,7 @@ export default function ExpenseForm({ form, updateField, onSubmit, submitting })
         >
           <option value="">Seleccionar...</option>
           {CATEGORIES.map((c) => (
-            <option key={c} value={c}>{c}</option>
+            <option key={c} value={c}>{categoryLabel(c)}</option>
           ))}
         </select>
       </div>

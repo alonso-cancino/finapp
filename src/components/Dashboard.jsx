@@ -1,4 +1,5 @@
 import { useDashboardData } from "../hooks/useDashboardData";
+import { categoryLabel, formatAmount } from "../config";
 import SpendingSummary from "./SpendingSummary";
 import CategoryBreakdown from "./CategoryBreakdown";
 
@@ -41,11 +42,11 @@ export default function Dashboard() {
                     <div>
                       <span className="font-medium">{item.who}</span>
                       <span className="text-gray-400 mx-1">-</span>
-                      <span className="text-gray-600">{item.category}</span>
+                      <span className="text-gray-600">{categoryLabel(item.category)}</span>
                       {item.description && <span className="text-gray-400 ml-1">({item.description})</span>}
                       <span className="text-gray-300 ml-1 text-xs">{item.date}</span>
                     </div>
-                    <span className="font-medium">${Number(item.amount).toFixed(2)}</span>
+                    <span className="font-medium">{formatAmount(item.amount)}</span>
                   </div>
                 ))}
               </div>
