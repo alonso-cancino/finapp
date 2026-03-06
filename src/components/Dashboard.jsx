@@ -2,6 +2,7 @@ import { useDashboardData } from "../hooks/useDashboardData";
 import { categoryLabel, formatAmount } from "../config";
 import SpendingSummary from "./SpendingSummary";
 import CategoryBreakdown from "./CategoryBreakdown";
+import TotalBreakdown from "./TotalBreakdown";
 
 export default function Dashboard() {
   const { month, data, loading, error, prevMonth, nextMonth } = useDashboardData();
@@ -26,6 +27,14 @@ export default function Dashboard() {
       {data && !loading && (
         <>
           <SpendingSummary summary={data.summary} />
+          <div>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Distribucion Total</h3>
+            <TotalBreakdown
+              byCategory={data.byCategory}
+              byCategoryPerPerson={data.byCategoryPerPerson}
+              total={Object.values(data.summary || {}).reduce((a, b) => a + b, 0)}
+            />
+          </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500 mb-2">Por Categoria</h3>
             <CategoryBreakdown

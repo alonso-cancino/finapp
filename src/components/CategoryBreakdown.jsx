@@ -1,6 +1,4 @@
-import { getMembers, categoryLabel, formatAmount } from "../config";
-
-const COLORS = ["bg-indigo-500", "bg-pink-500", "bg-amber-500", "bg-emerald-500"];
+import { getMembers, categoryLabel, formatAmount, personColor } from "../config";
 
 export default function CategoryBreakdown({ byCategory, byCategoryPerPerson }) {
   if (!byCategory) return null;
@@ -11,10 +9,10 @@ export default function CategoryBreakdown({ byCategory, byCategoryPerPerson }) {
 
   return (
     <div>
-      <div className="flex gap-2 mb-3 text-xs">
+      <div className="flex gap-3 mb-3 text-xs">
         {members.map((m, i) => (
           <div key={m} className="flex items-center gap-1">
-            <span className={`inline-block w-2.5 h-2.5 rounded-full ${COLORS[i]}`} />
+            <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: personColor(i) }} />
             <span className="text-gray-600">{m}</span>
           </div>
         ))}
@@ -34,8 +32,8 @@ export default function CategoryBreakdown({ byCategory, byCategoryPerPerson }) {
                 return (
                   <div
                     key={person}
-                    className={`${COLORS[i]} h-full`}
-                    style={{ width: `${pct}%` }}
+                    className="h-full"
+                    style={{ width: `${pct}%`, backgroundColor: personColor(i) }}
                   />
                 );
               })}

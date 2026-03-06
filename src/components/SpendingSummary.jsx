@@ -1,6 +1,4 @@
-import { getMembers, formatAmount } from "../config";
-
-const COLORS = ["bg-indigo-500", "bg-pink-500", "bg-amber-500", "bg-emerald-500"];
+import { getMembers, formatAmount, personColor } from "../config";
 
 export default function SpendingSummary({ summary }) {
   if (!summary) return null;
@@ -13,7 +11,10 @@ export default function SpendingSummary({ summary }) {
       <div className="flex gap-3">
         {members.map((person, i) => (
           <div key={person} className="flex-1 bg-white rounded-lg p-3 shadow-sm border border-gray-100">
-            <div className="text-xs text-gray-500">{person}</div>
+            <div className="flex items-center gap-1.5 mb-1">
+              <span className="inline-block w-2.5 h-2.5 rounded-full" style={{ backgroundColor: personColor(i) }} />
+              <span className="text-xs text-gray-500">{person}</span>
+            </div>
             <div className="text-lg font-semibold">{formatAmount(summary[person] || 0)}</div>
           </div>
         ))}
@@ -23,7 +24,7 @@ export default function SpendingSummary({ summary }) {
           {members.map((person, i) => {
             const pct = ((summary[person] || 0) / total) * 100;
             return pct > 0 ? (
-              <div key={person} className={COLORS[i]} style={{ width: `${pct}%` }} />
+              <div key={person} style={{ width: `${pct}%`, backgroundColor: personColor(i) }} className="h-full" />
             ) : null;
           })}
         </div>

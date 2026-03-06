@@ -61,3 +61,17 @@ export function categoryLabel(key) {
 export function formatAmount(n) {
   return "$" + Math.round(Number(n)).toLocaleString("es-CL");
 }
+
+// Generate distinct HSL colors for any number of items
+const PERSON_HUES = [235, 340, 40, 160, 280, 20];
+const CATEGORY_HUES = [210, 150, 30, 350, 270, 90, 180];
+
+export function personColor(index) {
+  const h = PERSON_HUES[index % PERSON_HUES.length];
+  return `hsl(${h}, 65%, 50%)`;
+}
+
+export function categoryColor(index) {
+  const h = CATEGORY_HUES[index % CATEGORY_HUES.length];
+  return `hsl(${h}, 55%, 50%)`;
+}
