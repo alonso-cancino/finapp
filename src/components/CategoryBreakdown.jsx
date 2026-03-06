@@ -2,12 +2,12 @@ import { useState } from "react";
 import { getMembers } from "../config";
 
 export default function CategoryBreakdown({ byCategory, byCategoryPerPerson }) {
-  const filters = ["All", ...getMembers()];
-  const [filter, setFilter] = useState("All");
+  const filters = ["Todos", ...getMembers()];
+  const [filter, setFilter] = useState("Todos");
 
   if (!byCategory) return null;
 
-  const data = filter === "All"
+  const data = filter === "Todos"
     ? byCategory
     : (byCategoryPerPerson?.[filter] || {});
 
@@ -47,7 +47,7 @@ export default function CategoryBreakdown({ byCategory, byCategoryPerPerson }) {
           </div>
         ))}
         {entries.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-4">No data for this month</p>
+          <p className="text-sm text-gray-400 text-center py-4">Sin datos para este mes</p>
         )}
       </div>
     </div>

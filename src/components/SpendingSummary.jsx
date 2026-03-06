@@ -28,7 +28,7 @@ export default function SpendingSummary({ summary }) {
           })}
         </div>
       )}
-      <div className="text-center text-sm text-gray-500">Total: ${total.toFixed(2)}</div>
+      <div className="text-center text-sm text-gray-500">Total: ${total.toFixed(0)}</div>
     </div>
   );
 }

@@ -3,7 +3,7 @@ export default function RecentSubmissions({ recent }) {
 
   return (
     <div className="mt-6">
-      <h3 className="text-sm font-medium text-gray-500 mb-2">Recent</h3>
+      <h3 className="text-sm font-medium text-gray-500 mb-2">Recientes</h3>
       <div className="space-y-2">
         {recent.map((item, i) => (
           <div key={i} className="flex justify-between items-center bg-gray-50 rounded-lg px-3 py-2 text-sm">

@@ -35,11 +35,11 @@ export async function saveMembers(members) {
 }
 
 export const CATEGORIES = [
-  "Food",
-  "Transport",
-  "Supermarket",
-  "Health",
-  "Entertainment",
-  "Home",
-  "Other",
+  "Comida",
+  "Transporte",
+  "Supermercado",
+  "Salud",
+  "Entretencion",
+  "Hogar",
+  "Otro",
 ];

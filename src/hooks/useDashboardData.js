@@ -2,7 +2,14 @@ import { useState, useEffect, useCallback } from "react";
 import { SCRIPT_URL } from "../config";
 
 function currentMonth() {
-  return new Date().toISOString().slice(0, 7);
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+}
+
+function shiftMonth(m, delta) {
+  const [y, mo] = m.split("-").map(Number);
+  const d = new Date(y, mo - 1 + delta, 1);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
 
 export function useDashboardData() {
@@ -19,7 +26,7 @@ export function useDashboardData() {
       const json = await res.json();
       setData(json);
     } catch {
-      setError("Failed to load dashboard data");
+      setError("No se pudieron cargar los datos");
     } finally {
       setLoading(false);
     }
@@ -30,19 +37,11 @@ export function useDashboardData() {
   }, [month, fetchData]);
 
   const prevMonth = useCallback(() => {
-    setMonth((m) => {
-      const d = new Date(m + "-01");
-      d.setMonth(d.getMonth() - 1);
-      return d.toISOString().slice(0, 7);
-    });
+    setMonth((m) => shiftMonth(m, -1));
   }, []);
 
   const nextMonth = useCallback(() => {
-    setMonth((m) => {
-      const d = new Date(m + "-01");
-      d.setMonth(d.getMonth() + 1);
-      return d.toISOString().slice(0, 7);
-    });
+    setMonth((m) => shiftMonth(m, 1));
   }, []);
 
   return { month, data, loading, error, prevMonth, nextMonth, refetch: () => fetchData(month) };

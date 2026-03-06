@@ -23,7 +23,7 @@ export default function App() {
 
       <div className="max-w-md mx-auto px-4 pt-6 pb-20">
         <h1 className="text-xl font-bold text-gray-800 mb-4">
-          {activeTab === "log" ? "Log Expense" : activeTab === "dashboard" ? "Dashboard" : "Settings"}
+          {activeTab === "log" ? "Registrar Gasto" : activeTab === "dashboard" ? "Resumen" : "Ajustes"}
         </h1>
 
         {activeTab === "log" && (

@@ -4,7 +4,8 @@ import { SCRIPT_URL } from "../config";
 const STORAGE_KEY = "recentExpenses";
 
 function getToday() {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
 function loadRecent() {
@@ -41,7 +42,7 @@ export function useExpenseForm() {
 
   const submit = useCallback(async () => {
     if (!form.who || !form.amount || !form.category) {
-      setToast({ type: "error", message: "Fill in required fields" });
+      setToast({ type: "error", message: "Completa los campos requeridos" });
       return;
     }
 
@@ -58,10 +59,10 @@ export function useExpenseForm() {
 
       const updated = saveRecent(payload);
       setRecent(updated);
-      setToast({ type: "success", message: "Expense saved!" });
+      setToast({ type: "success", message: "Gasto guardado!" });
       setForm(initialForm(form.who));
     } catch {
-      setToast({ type: "error", message: "Network error. Try again." });
+      setToast({ type: "error", message: "Error de red. Intenta de nuevo." });
     } finally {
       setSubmitting(false);
     }

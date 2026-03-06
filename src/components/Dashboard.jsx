@@ -5,7 +5,8 @@ import CategoryBreakdown from "./CategoryBreakdown";
 export default function Dashboard() {
   const { month, data, loading, error, prevMonth, nextMonth } = useDashboardData();
 
-  const label = new Date(month + "-01").toLocaleDateString("en-US", {
+  const [y, m] = month.split("-").map(Number);
+  const label = new Date(y, m - 1).toLocaleDateString("es-CL", {
     month: "long",
     year: "numeric",
   });
@@ -18,14 +19,14 @@ export default function Dashboard() {
         <button onClick={nextMonth} className="p-2 text-xl text-gray-600 active:text-indigo-600">&rarr;</button>
       </div>
 
-      {loading && <p className="text-center text-gray-400 py-8">Loading...</p>}
+      {loading && <p className="text-center text-gray-400 py-8">Cargando...</p>}
       {error && <p className="text-center text-red-500 py-8">{error}</p>}
 
       {data && !loading && (
         <>
           <SpendingSummary summary={data.summary} />
           <div>
-            <h3 className="text-sm font-medium text-gray-500 mb-2">By Category</h3>
+            <h3 className="text-sm font-medium text-gray-500 mb-2">Por Categoria</h3>
             <CategoryBreakdown
               byCategory={data.byCategory}
               byCategoryPerPerson={data.byCategoryPerPerson}
@@ -33,7 +34,7 @@ export default function Dashboard() {
           </div>
           {data.expenses?.length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Recent Expenses</h3>
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Gastos Recientes</h3>
               <div className="space-y-2">
                 {data.expenses.map((item, i) => (
                   <div key={i} className="flex justify-between items-center bg-white rounded-lg px-3 py-2 text-sm border border-gray-100">

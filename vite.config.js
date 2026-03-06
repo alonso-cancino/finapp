@@ -11,8 +11,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'Family Expenses',
-        short_name: 'Expenses',
+        name: 'Gastos Familiares',
+        short_name: 'Gastos',
         start_url: '/finapp/',
         display: 'standalone',
         background_color: '#ffffff',

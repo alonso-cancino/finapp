@@ -1,7 +1,7 @@
 const tabs = [
-  { id: "log", label: "Log", icon: "+" },
-  { id: "dashboard", label: "Dashboard", icon: "\u2261" },
-  { id: "settings", label: "Settings", icon: "\u2699" },
+  { id: "log", label: "Registrar", icon: "+" },
+  { id: "dashboard", label: "Resumen", icon: "\u2261" },
+  { id: "settings", label: "Ajustes", icon: "\u2699" },
 ];
 
 export default function BottomNav({ activeTab, onTabChange }) {
