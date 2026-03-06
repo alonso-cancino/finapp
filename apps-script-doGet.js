@@ -1,12 +1,70 @@
 /**
- * Add this function to your existing Google Apps Script (alongside doPost).
- * After adding, re-deploy the Web App as a NEW version.
+ * Full Google Apps Script for Family Expense Tracker.
+ * Paste this entire file into your Apps Script editor and redeploy.
  *
- * Usage: GET https://script.google.com/.../exec?month=2026-03
- * Returns JSON with summary, byCategory, byCategoryPerPerson, and recent expenses.
+ * Requires a "Members" sheet tab — it will be created automatically on first use.
  */
+
+const SHEET_ID = "1fhwQobXHt-t5P_0xvUdwfGVjP4AgYsbRWF-sPUVHiwk";
+
+function getMembersSheet() {
+  var ss = SpreadsheetApp.openById(SHEET_ID);
+  var sheet = ss.getSheetByName("Members");
+  if (!sheet) {
+    sheet = ss.insertSheet("Members");
+    sheet.getRange("A1").setValue("Name");
+  }
+  return sheet;
+}
+
+function doPost(e) {
+  var data = JSON.parse(e.postData.contents);
+
+  // Save members
+  if (data.action === "setMembers") {
+    var sheet = getMembersSheet();
+    sheet.clear();
+    sheet.getRange("A1").setValue("Name");
+    var members = data.members || [];
+    for (var i = 0; i < members.length; i++) {
+      sheet.getRange(i + 2, 1).setValue(members[i]);
+    }
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "ok" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Log expense
+  var sheet = SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
+  sheet.appendRow([
+    new Date(),
+    data.date,
+    data.who,
+    Number(data.amount),
+    data.category,
+    data.description || "",
+  ]);
+  return ContentService
+    .createTextOutput(JSON.stringify({ status: "ok" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
 function doGet(e) {
-  var month = e.parameter.month; // "YYYY-MM"
+  // Return members list
+  if (e.parameter.action === "getMembers") {
+    var sheet = getMembersSheet();
+    var data = sheet.getDataRange().getValues();
+    var members = [];
+    for (var i = 1; i < data.length; i++) {
+      if (data[i][0]) members.push(data[i][0]);
+    }
+    return ContentService
+      .createTextOutput(JSON.stringify({ members: members }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // Dashboard data
+  var month = e.parameter.month;
   var sheet = SpreadsheetApp.openById(SHEET_ID).getActiveSheet();
   var data = sheet.getDataRange().getValues();
 
@@ -15,11 +73,9 @@ function doGet(e) {
   var byCategoryPerPerson = {};
   var expenses = [];
 
-  // Skip header row (row 0)
   for (var i = 1; i < data.length; i++) {
     var row = data[i];
-    // Columns: A=ServerTimestamp, B=Date, C=Who, D=Amount, E=Category, F=Description
-    var rowDate = String(row[1]).slice(0, 7); // "YYYY-MM"
+    var rowDate = String(row[1]).slice(0, 7);
     if (rowDate !== month) continue;
 
     var who = row[2];
@@ -27,13 +83,8 @@ function doGet(e) {
     var category = row[4];
     var description = row[5] || "";
 
-    // Summary per person
     summary[who] = (summary[who] || 0) + amount;
-
-    // By category (all)
     byCategory[category] = (byCategory[category] || 0) + amount;
-
-    // By category per person
     if (!byCategoryPerPerson[who]) byCategoryPerPerson[who] = {};
     byCategoryPerPerson[who][category] = (byCategoryPerPerson[who][category] || 0) + amount;
 
@@ -46,18 +97,15 @@ function doGet(e) {
     });
   }
 
-  // Return last 20 expenses, most recent first
   expenses.reverse();
   expenses = expenses.slice(0, 20);
 
-  var result = {
-    summary: summary,
-    byCategory: byCategory,
-    byCategoryPerPerson: byCategoryPerPerson,
-    expenses: expenses,
-  };
-
   return ContentService
-    .createTextOutput(JSON.stringify(result))
+    .createTextOutput(JSON.stringify({
+      summary: summary,
+      byCategory: byCategory,
+      byCategoryPerPerson: byCategoryPerPerson,
+      expenses: expenses,
+    }))
     .setMimeType(ContentService.MimeType.JSON);
 }

@@ -1,25 +1,33 @@
-import { useState } from "react";
-import { getMembers, setMembers } from "../config";
+import { useState, useEffect } from "react";
+import { getMembers, fetchMembers, saveMembers } from "../config";
 
 export default function Settings({ onMembersChange }) {
   const [members, setLocal] = useState(getMembers);
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchMembers().then((m) => {
+      setLocal(m);
+      setLoading(false);
+    });
+  }, []);
+
+  const update = (updated) => {
+    setLocal(updated);
+    saveMembers(updated);
+    onMembersChange(updated);
+  };
 
   const add = () => {
     const trimmed = name.trim();
     if (!trimmed || members.includes(trimmed)) return;
-    const updated = [...members, trimmed];
-    setLocal(updated);
-    setMembers(updated);
-    onMembersChange(updated);
+    update([...members, trimmed]);
     setName("");
   };
 
   const remove = (member) => {
-    const updated = members.filter((m) => m !== member);
-    setLocal(updated);
-    setMembers(updated);
-    onMembersChange(updated);
+    update(members.filter((m) => m !== member));
   };
 
   return (
@@ -43,22 +51,26 @@ export default function Settings({ onMembersChange }) {
           </button>
         </div>
       </div>
-      <div className="space-y-2">
-        {members.map((member) => (
-          <div key={member} className="flex justify-between items-center bg-white rounded-lg px-3 py-3 border border-gray-100">
-            <span className="font-medium">{member}</span>
-            <button
-              onClick={() => remove(member)}
-              className="text-red-500 text-sm font-medium"
-            >
-              Remove
-            </button>
-          </div>
-        ))}
-        {members.length === 0 && (
-          <p className="text-sm text-gray-400 text-center py-4">Add family members to get started</p>
-        )}
-      </div>
+      {loading ? (
+        <p className="text-sm text-gray-400 text-center py-4">Loading...</p>
+      ) : (
+        <div className="space-y-2">
+          {members.map((member) => (
+            <div key={member} className="flex justify-between items-center bg-white rounded-lg px-3 py-3 border border-gray-100">
+              <span className="font-medium">{member}</span>
+              <button
+                onClick={() => remove(member)}
+                className="text-red-500 text-sm font-medium"
+              >
+                Remove
+              </button>
+            </div>
+          ))}
+          {members.length === 0 && (
+            <p className="text-sm text-gray-400 text-center py-4">Add family members to get started</p>
+          )}
+        </div>
+      )}
     </div>
   );
 }

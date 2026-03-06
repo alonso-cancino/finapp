@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useExpenseForm } from "./hooks/useExpenseForm";
 import ExpenseForm from "./components/ExpenseForm";
 import RecentSubmissions from "./components/RecentSubmissions";
@@ -6,11 +6,15 @@ import Dashboard from "./components/Dashboard";
 import Settings from "./components/Settings";
 import BottomNav from "./components/BottomNav";
 import Toast from "./components/Toast";
-import { getMembers } from "./config";
+import { getMembers, fetchMembers } from "./config";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState(() => getMembers().length ? "log" : "settings");
   const [, setMembersVersion] = useState(0);
+
+  useEffect(() => {
+    fetchMembers().then(() => setMembersVersion((v) => v + 1));
+  }, []);
   const { form, updateField, submit, submitting, toast, dismissToast, recent } = useExpenseForm();
 
   return (
