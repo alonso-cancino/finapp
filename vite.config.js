@@ -3,8 +3,10 @@ import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+const basePath = process.env.VITE_BASE_PATH || '/'
+
 export default defineConfig({
-  base: '/finapp/',
+  base: basePath,
   plugins: [
     react(),
     tailwindcss(),
@@ -13,7 +15,7 @@ export default defineConfig({
       manifest: {
         name: 'Gastos Familiares',
         short_name: 'Gastos',
-        start_url: '/finapp/',
+        start_url: basePath,
         display: 'standalone',
         background_color: '#ffffff',
         theme_color: '#4f46e5',

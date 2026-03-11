@@ -6,9 +6,20 @@ import Dashboard from "./components/Dashboard";
 import Settings from "./components/Settings";
 import BottomNav from "./components/BottomNav";
 import Toast from "./components/Toast";
-import { getMembers, fetchMembers } from "./config";
+import TokenGate from "./components/TokenGate";
+import { getMembers, fetchMembers, getToken } from "./config";
 
 export default function App() {
+  const [token, setToken] = useState(getToken);
+
+  if (!token) {
+    return <TokenGate onAuth={setToken} />;
+  }
+
+  return <MainApp />;
+}
+
+function MainApp() {
   const [activeTab, setActiveTab] = useState(() => getMembers().length ? "log" : "settings");
   const [, setMembersVersion] = useState(0);
 

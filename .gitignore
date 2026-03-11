@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 .env
+.clasp.json
+gas/Code.js
 
 # Editor directories and files
 .vscode/*

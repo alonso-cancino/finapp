@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getMembers, fetchMembers, saveMembers } from "../config";
+import { getMembers, fetchMembers, saveMembers, clearToken } from "../config";
 
 export default function Settings({ onMembersChange }) {
   const [members, setLocal] = useState(getMembers);
@@ -28,6 +28,11 @@ export default function Settings({ onMembersChange }) {
 
   const remove = (member) => {
     update(members.filter((m) => m !== member));
+  };
+
+  const logout = () => {
+    clearToken();
+    window.location.reload();
   };
 
   return (
@@ -71,6 +76,15 @@ export default function Settings({ onMembersChange }) {
           )}
         </div>
       )}
+
+      <hr className="border-gray-200" />
+
+      <button
+        onClick={logout}
+        className="w-full text-red-600 text-sm font-medium py-3 rounded-lg border border-red-200 active:bg-red-50"
+      >
+        Cerrar sesion
+      </button>
     </div>
   );
 }
