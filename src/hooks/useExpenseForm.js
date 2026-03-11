@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { SCRIPT_URL } from "../config";
+import { apiUrl } from "../config";
 
 const STORAGE_KEY = "recentExpenses";
 
@@ -50,7 +50,7 @@ export function useExpenseForm() {
     const payload = { ...form, amount: parseFloat(form.amount) };
 
     try {
-      await fetch(SCRIPT_URL, {
+      await fetch(apiUrl(), {
         method: "POST",
         mode: "no-cors",
         headers: { "Content-Type": "application/json" },

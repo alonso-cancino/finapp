@@ -1,6 +1,27 @@
 export const SCRIPT_URL = import.meta.env.VITE_SCRIPT_URL;
 
+const TOKEN_KEY = "apiToken";
 const MEMBERS_KEY = "familyMembers";
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY) || "";
+}
+
+export function setToken(token) {
+  localStorage.setItem(TOKEN_KEY, token);
+}
+
+export function clearToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+export function apiUrl(params = {}, tokenOverride) {
+  const url = new URL(SCRIPT_URL);
+  const token = tokenOverride || getToken();
+  if (token) url.searchParams.set("token", token);
+  Object.entries(params).forEach(([k, v]) => url.searchParams.set(k, v));
+  return url.toString();
+}
 
 export function getMembers() {
   try {
@@ -12,7 +33,7 @@ export function getMembers() {
 
 export async function fetchMembers() {
   try {
-    const res = await fetch(`${SCRIPT_URL}?action=getMembers`);
+    const res = await fetch(apiUrl({ action: "getMembers" }));
     const json = await res.json();
     if (Array.isArray(json.members) && json.members.length) {
       localStorage.setItem(MEMBERS_KEY, JSON.stringify(json.members));
@@ -25,7 +46,7 @@ export async function fetchMembers() {
 export async function saveMembers(members) {
   localStorage.setItem(MEMBERS_KEY, JSON.stringify(members));
   try {
-    await fetch(SCRIPT_URL, {
+    await fetch(apiUrl(), {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },

@@ -4,11 +4,21 @@
  *
  * Setup:
  * 1. Replace SHEET_ID with your Google Sheet ID (from the spreadsheet URL)
- * 2. Deploy > New deployment > Web app > Execute as: Me > Who has access: Anyone
- * 3. A "Members" sheet tab will be created automatically on first use.
+ * 2. Set SECRET_TOKEN to a random string (this is the password your family will use)
+ * 3. Deploy > New deployment > Web app > Execute as: Me > Who has access: Anyone
+ * 4. A "Members" sheet tab will be created automatically on first use.
  */
 
 const SHEET_ID = "YOUR_GOOGLE_SHEET_ID";
+const SECRET_TOKEN = ""; // Set this to a random string to protect your data
+
+function checkToken(e) {
+  if (!SECRET_TOKEN) return null;
+  if (e.parameter && e.parameter.token === SECRET_TOKEN) return null;
+  return ContentService
+    .createTextOutput(JSON.stringify({ error: "Unauthorized" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
 function formatDate(val) {
   if (Object.prototype.toString.call(val) === "[object Date]") {
@@ -31,6 +41,9 @@ function getMembersSheet() {
 }
 
 function doPost(e) {
+  var authError = checkToken(e);
+  if (authError) return authError;
+
   var data = JSON.parse(e.postData.contents);
 
   if (data.action === "setMembers") {
@@ -61,6 +74,9 @@ function doPost(e) {
 }
 
 function doGet(e) {
+  var authError = checkToken(e);
+  if (authError) return authError;
+
   if (e.parameter.action === "getMembers") {
     var sheet = getMembersSheet();
     var data = sheet.getDataRange().getValues();

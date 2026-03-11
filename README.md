@@ -1,16 +1,40 @@
-# React + Vite
+# Gastos Familiares
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple family expense tracker PWA. Log expenses, see monthly breakdowns by person and category. Backed by Google Sheets via Apps Script.
 
-Currently, two official plugins are available:
+## Fork & Deploy
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. **Create a Google Sheet** — open [sheets.google.com](https://sheets.google.com) and create a blank spreadsheet. Copy its ID from the URL (`/d/SHEET_ID/edit`).
 
-## React Compiler
+2. **Set up Apps Script** — open [script.google.com](https://script.google.com), create a new project, and paste the contents of `apps-script.js`. Update:
+   - `SHEET_ID` — your spreadsheet ID
+   - `SECRET_TOKEN` — a random string (this is the password your family will enter in the app)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+   Deploy: **Deploy > New deployment > Web app > Execute as: Me > Who has access: Anyone**. Copy the deployment URL.
 
-## Expanding the ESLint configuration
+3. **Fork this repo** and add a GitHub secret:
+   - `VITE_SCRIPT_URL` — the Apps Script deployment URL from step 2
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+4. **Enable GitHub Pages** — go to Settings > Pages > Source: GitHub Actions.
+
+5. Push to `main` (or run the workflow manually) — the app will deploy automatically. The base path is auto-detected from your repo name.
+
+6. **Share the password** (`SECRET_TOKEN`) with your family. Each device enters it once on first launch.
+
+## Local Development
+
+```bash
+cp .env.example .env
+# Edit .env with your Apps Script URL
+npm install
+npm run dev
+```
+
+## How Auth Works
+
+- The owner sets `SECRET_TOKEN` in Apps Script to a random string
+- The frontend shows a password screen on first launch
+- The password is validated via a test API call
+- If correct, it's saved to localStorage and never asked again
+- Settings > "Cerrar sesion" clears the saved password
+- If `SECRET_TOKEN` is left empty, no auth is required (not recommended for public repos)

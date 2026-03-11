@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { SCRIPT_URL } from "../config";
+import { apiUrl } from "../config";
 
 function currentMonth() {
   const now = new Date();
@@ -22,7 +22,7 @@ export function useDashboardData() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${SCRIPT_URL}?month=${m}`);
+      const res = await fetch(apiUrl({ month: m }));
       const json = await res.json();
       setData(json);
     } catch {
