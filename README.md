@@ -1,40 +1,163 @@
 # Gastos Familiares
 
-A simple family expense tracker PWA. Log expenses, see monthly breakdowns by person and category. Backed by Google Sheets via Apps Script.
+A family expense tracker PWA. Log expenses from your phone, see monthly breakdowns by person and category. Data is stored in Google Sheets, served via Apps Script, and the frontend is deployed on GitHub Pages.
 
-## Fork & Deploy
+## How It Works
 
-1. **Create a Google Sheet** — open [sheets.google.com](https://sheets.google.com) and create a blank spreadsheet. Copy its ID from the URL (`/d/SHEET_ID/edit`).
+```
+Phone (PWA)  -->  GitHub Pages (static frontend)  -->  Apps Script (API)  -->  Google Sheets (data)
+```
 
-2. **Set up Apps Script** — open [script.google.com](https://script.google.com), create a new project, and paste the contents of `apps-script.js`. Update:
-   - `SHEET_ID` — your spreadsheet ID
-   - `SECRET_TOKEN` — a random string (this is the password your family will enter in the app)
+- The frontend is a static React app hosted on GitHub Pages
+- All data reads/writes go through a Google Apps Script web app
+- The Apps Script reads from and writes to a Google Sheet you own
+- A password (`SECRET_TOKEN`) protects the API so only your family can access it
 
-   Deploy: **Deploy > New deployment > Web app > Execute as: Me > Who has access: Anyone**. Copy the deployment URL.
+## Fork & Deploy (Step by Step)
 
-3. **Fork this repo** and add a GitHub secret:
-   - `VITE_SCRIPT_URL` — the Apps Script deployment URL from step 2
+### 1. Create a Google Sheet
 
-4. **Enable GitHub Pages** — go to Settings > Pages > Source: GitHub Actions.
+Go to [sheets.google.com](https://sheets.google.com) and create a blank spreadsheet. Copy the Sheet ID from the URL:
 
-5. Push to `main` (or run the workflow manually) — the app will deploy automatically. The base path is auto-detected from your repo name.
+```
+https://docs.google.com/spreadsheets/d/THIS_IS_YOUR_SHEET_ID/edit
+```
 
-6. **Share the password** (`SECRET_TOKEN`) with your family. Each device enters it once on first launch.
+### 2. Set up Apps Script
+
+Go to [script.google.com](https://script.google.com) and create a new project. You don't need to paste code manually — we'll push it from the terminal (see step 5). For now, just get your **Script ID**:
+
+- Open the project > **Project Settings** (gear icon) > copy the **Script ID**
+
+### 3. Fork this repo
+
+Fork it on GitHub, then clone your fork:
+
+```bash
+git clone https://github.com/YOUR_USERNAME/finapp.git
+cd finapp
+npm install
+```
+
+### 4. Configure your environment
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` with your values:
+
+```env
+VITE_SCRIPT_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+SHEET_ID=YOUR_GOOGLE_SHEET_ID
+SECRET_TOKEN=a_password_for_your_family
+```
+
+- `SHEET_ID` — from step 1
+- `SECRET_TOKEN` — any string you choose; this is the password your family will type once on each device
+- `VITE_SCRIPT_URL` — you'll get this after deploying the Apps Script in step 5 (come back and fill it in)
+
+Also create `.clasp.json`:
+
+```bash
+cp .clasp.json.example .clasp.json
+```
+
+Edit it with your Script ID from step 2.
+
+### 5. Deploy the Apps Script
+
+Log in to Google (one-time):
+
+```bash
+npx @google/clasp login
+```
+
+Push the code and deploy:
+
+```bash
+npm run deploy:gas
+npx @google/clasp deploy --description "v1"
+```
+
+The deploy command outputs your **deployment URL** — copy it and paste it as `VITE_SCRIPT_URL` in your `.env` file.
+
+**Important:** Each time you run `npx @google/clasp deploy`, it creates a new deployment with a new URL. To update an existing deployment instead:
+
+```bash
+npx @google/clasp deployments          # list deployments, copy the ID
+npx @google/clasp deploy -i DEPLOY_ID  # update that deployment
+```
+
+### 6. Deploy the frontend
+
+Add a GitHub secret in your fork (Settings > Secrets > Actions):
+
+- `VITE_SCRIPT_URL` — the Apps Script deployment URL from step 5
+
+Enable GitHub Pages: **Settings > Pages > Source: GitHub Actions**.
+
+Push to `main` — the app will build and deploy automatically. The base path is auto-detected from your repo name.
+
+### 7. Share with your family
+
+Open the GitHub Pages URL on your phone and install as a PWA (Share > Add to Home Screen). Enter the password you set as `SECRET_TOKEN`. Each device only needs to enter it once.
 
 ## Local Development
 
 ```bash
 cp .env.example .env
-# Edit .env with your Apps Script URL
+# Fill in your values
 npm install
 npm run dev
 ```
 
-## How Auth Works
+The app runs at `http://localhost:5173`. You'll see the password screen — enter your `SECRET_TOKEN` value.
 
-- The owner sets `SECRET_TOKEN` in Apps Script to a random string
-- The frontend shows a password screen on first launch
-- The password is validated via a test API call
-- If correct, it's saved to localStorage and never asked again
-- Settings > "Cerrar sesion" clears the saved password
-- If `SECRET_TOKEN` is left empty, no auth is required (not recommended for public repos)
+## Updating the Apps Script
+
+Whenever you change `apps-script.js`, push the update:
+
+```bash
+npm run deploy:gas
+```
+
+This reads `SHEET_ID` and `SECRET_TOKEN` from your `.env`, injects them into the code, and pushes to Google. No need to open the browser.
+
+To change the password: update `SECRET_TOKEN` in `.env`, run `npm run deploy:gas`, and tell your family the new password. They can enter it after using Settings > "Cerrar sesion" on their devices.
+
+## Auth Flow
+
+1. User opens the app for the first time
+2. Sees a password screen: "Ingresa la contrasena"
+3. Enters the password the owner shared with them
+4. App validates via a test API call — if wrong, shows error; if correct, saves to localStorage
+5. App loads normally; password is never asked again
+6. To log out or change password: Settings > "Cerrar sesion"
+
+If `SECRET_TOKEN` is left empty in the Apps Script, no auth is required — **not recommended** if your repo is public, since anyone could find your API URL and read/write your data.
+
+## Project Structure
+
+```
+├── src/
+│   ├── App.jsx                  # Main app with auth gate
+│   ├── config.js                # API helpers, token management
+│   ├── components/
+│   │   ├── TokenGate.jsx        # Password entry screen
+│   │   ├── ExpenseForm.jsx      # Log an expense
+│   │   ├── Dashboard.jsx        # Monthly summary charts
+│   │   ├── Settings.jsx         # Manage family members + logout
+│   │   ├── BottomNav.jsx        # Tab navigation
+│   │   └── ...
+│   └── hooks/
+│       ├── useExpenseForm.js    # Form state + API submission
+│       └── useDashboardData.js  # Fetch monthly data
+├── apps-script.js               # Google Apps Script backend (source)
+├── gas/                         # Generated files pushed to Apps Script
+├── scripts/
+│   └── deploy-gas.js            # Injects .env values + runs clasp push
+├── .env.example                 # Template for local config
+├── .clasp.json.example          # Template for clasp config
+└── vite.config.js               # Dynamic base path
+```
