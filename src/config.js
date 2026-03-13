@@ -79,6 +79,32 @@ export function categoryLabel(key) {
   return CATEGORY_LABELS[key] || key;
 }
 
+export const MOVEMENT_TYPES = ["expense", "income", "transfer", "savings", "withdrawal"];
+
+export const MOVEMENT_LABELS = {
+  expense: "Gasto",
+  income: "Ingreso",
+  transfer: "Transferencia",
+  savings: "Ahorro",
+  withdrawal: "Retiro",
+};
+
+export function movementLabel(key) {
+  return MOVEMENT_LABELS[key] || key;
+}
+
+export const INCOME_CATEGORIES = ["Salary", "Insurance", "Other"];
+
+export const INCOME_CATEGORY_LABELS = {
+  Salary: "Sueldo",
+  Insurance: "Seguro",
+  Other: "Otro",
+};
+
+export function incomeCategoryLabel(key) {
+  return INCOME_CATEGORY_LABELS[key] || key;
+}
+
 export function formatAmount(n) {
   return "$" + Math.round(Number(n)).toLocaleString("es-CL");
 }

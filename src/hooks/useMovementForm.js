@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { apiUrl } from "../config";
+import { apiUrl, MOVEMENT_LABELS } from "../config";
 
 const STORAGE_KEY = "recentExpenses";
 
@@ -10,44 +10,75 @@ function getToday() {
 
 function loadRecent() {
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    // Gracefully handle old entries that lack type field
+    return stored.map((e) => ({ type: "expense", shared: "shared", to: "", ...e }));
   } catch {
     return [];
   }
 }
 
-function saveRecent(expense) {
-  const recent = [expense, ...loadRecent()].slice(0, 3);
+function saveRecent(entry) {
+  const recent = [entry, ...loadRecent()].slice(0, 3);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(recent));
   return recent;
 }
 
 const initialForm = (who) => ({
+  type: "expense",
   who: who || "",
   amount: "",
   category: "",
   description: "",
   date: getToday(),
+  shared: "shared",
+  to: "",
 });
 
-export function useExpenseForm() {
+export function useMovementForm() {
   const [form, setForm] = useState(() => initialForm());
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState(null);
   const [recent, setRecent] = useState(loadRecent);
 
   const updateField = useCallback((field, value) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => {
+      const next = { ...prev, [field]: value };
+      // Reset type-specific fields when changing type
+      if (field === "type") {
+        next.category = "";
+        next.shared = "shared";
+        next.to = "";
+      }
+      return next;
+    });
   }, []);
 
   const submit = useCallback(async () => {
-    if (!form.who || !form.amount || !form.category) {
+    const { type, who, amount, category, to } = form;
+
+    // Common validation
+    if (!who || !amount) {
       setToast({ type: "error", message: "Completa los campos requeridos" });
       return;
     }
 
+    // Type-specific validation
+    if (type === "expense" && !category) {
+      setToast({ type: "error", message: "Selecciona una categoria" });
+      return;
+    }
+    if (type === "income" && !category) {
+      setToast({ type: "error", message: "Selecciona una categoria de ingreso" });
+      return;
+    }
+    if (type === "transfer" && !to) {
+      setToast({ type: "error", message: "Selecciona a quien transferir" });
+      return;
+    }
+
     setSubmitting(true);
-    const payload = { ...form, amount: parseFloat(form.amount) };
+    const payload = { ...form, amount: parseFloat(amount) };
 
     try {
       await fetch(apiUrl(), {
@@ -59,8 +90,10 @@ export function useExpenseForm() {
 
       const updated = saveRecent(payload);
       setRecent(updated);
-      setToast({ type: "success", message: "Gasto guardado!" });
-      setForm(initialForm(form.who));
+
+      const label = MOVEMENT_LABELS[type] || "Movimiento";
+      setToast({ type: "success", message: `${label} guardado!` });
+      setForm(initialForm(who));
     } catch {
       setToast({ type: "error", message: "Error de red. Intenta de nuevo." });
     } finally {
